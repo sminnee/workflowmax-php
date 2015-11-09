@@ -10,7 +10,7 @@ use Sminnee\WorkflowMax\Model\Staff;
 /**
  * A sub-client responsible for accessing job
  */
-class StaffConnector
+class StaffConnector extends TypeConnector
 {
 
     protected $connector;
@@ -26,8 +26,15 @@ class StaffConnector
      */
     function byId($id) {
         return new Staff($this->connector, $this->connector->apiCall(
-            "client.api/get/$id",
+            "staff.api/get/$id",
             function($result) { return $result['Staff']; }
+        ));
+    }
+
+    function all() {
+        return $this->listFromApiCall($this->connector->apiCall(
+            'staff.api/list',
+            function($result) { return $result['StaffList']['Staff']; }
         ));
     }
 

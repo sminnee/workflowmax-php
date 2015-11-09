@@ -13,7 +13,7 @@ use Sminnee\WorkflowMax\Model\TimesheetList;
 /**
  * A sub-client responsible for accessing job
  */
-class TimesheetConnector
+class TimesheetConnector extends TypeConnector
 {
 
     protected $client;
@@ -64,7 +64,7 @@ class TimesheetConnector
 
         return $this->listFromApiCall($this->connector->apiCall(
             'time.api/list?' . $params,
-            function($result) { return $result['Times']['Time']; }
+            function($result) { return isset($result['Times']['Time']) ? $result['Times']['Time'] : []; }
         ));
     }
 
@@ -73,12 +73,5 @@ class TimesheetConnector
      */
     function byDay($day) {
         return $this->byDateRange($day, $day);
-    }
-
-    function listFromApiCall(ApiCall $apiCall) {
-        $connector = $this->connector;
-        return iter\map(function($record) use ($connector) {
-            return $connector->timesheet()->byStub($record);
-        }, $apiCall);
     }
 }
