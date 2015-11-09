@@ -4,6 +4,7 @@ namespace Sminnee\WorkflowMax\Model;
 
 use Sminnee\WorkflowMax\ApiCall;
 use Sminnee\WorkflowMax\Connector;
+use Datetime;
 
 /**
  * Basis of API models, fetching data, etc
@@ -64,8 +65,33 @@ trait ModelBase
         return $this->data[$param];
     }
 
-    function data() {
-        return $this->data;
+    /**
+     * Return a one-line summary of this boject
+     * @return [type] [description]
+     */
+    function oneLine() {
+        return get_class($this) . ' #' . $this->data['ID'];
+    }
+
+    /**
+     * Return a paragraph summary of this boject
+     * @return [type] [description]
+     */
+    function paragraph() {
+        $summary = get_class($this) . "\n";
+        foreach($this->data as $k => $v) {
+            $summary .= " - $k: ";
+            if($v instanceof Datetime) {
+                $summary .= $v->format('Y-m-d H:i:s') . "\n";
+            } elseif(is_object($v)) {
+                $summary .= $v->oneLine() . "\n";
+            } elseif(is_array($v)) {
+                $summary .= var_export($v, true) . "\n";
+            } else {
+                $summary .= (string)$v . "\n";
+            }
+        }
+        return $summary;
     }
 
     function populate($data) {
