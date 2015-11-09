@@ -33,7 +33,6 @@ class ApiCall implements IteratorAggregate
      * @return array Array representation of the XML data
      */
     function data() {
-        echo "Calling $this->url...\n";
         $result = $this->fetcher->get($this->url);
 
         if ($result->getStatusCode() == 200) {
