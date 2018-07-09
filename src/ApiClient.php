@@ -7,10 +7,14 @@ use GuzzleHttp\Client as Guzzle;
 /**
  * The WorkflowMax API connector
  */
-class Connector
+class ApiClient
 {
 
-    function __construct($params) {
+    private $params;
+    private $fetcher;
+    private $goutte;
+
+    public function __construct($params) {
         $this->params = $params;
 
         $this->fetcher = new Guzzle([
@@ -20,31 +24,65 @@ class Connector
     }
 
     /**
+     * Get a goutte client logged into this WFM account
+     * @return \Goutte\Client
+     */
+    public function goutte()
+    {
+        if (!$this->goutte) {
+            $this->goutte = new \Goutte\Client();
+            $login = new \SilverStripe\WorkflowMax\Scraper\LoginHandler($this->goutte);
+
+            foreach (['account', 'username', 'password'] as $required) {
+                if (empty($this->params[$required])) {
+                    throw new \LogicException("Parameter '$required' is required");
+                }
+            }
+
+            list($success, $message) = $login->login(
+                $this->params['account'],
+                [
+                    'username' => $this->params['username'], 'password' => $this->params['password']
+                ]
+            );
+
+            if (!$success) {
+                throw new \LogicException("Couldn't log in: " . $message);
+            }
+        }
+    }
+
+    /**
      * @return Sminnee\WorkflowMax\Connector\JobConnector
      */
-    function job() {
+    public function job() {
         return new Connector\JobConnector($this);
     }
 
     /**
      * @return Sminnee\WorkflowMax\Connector\TimesheetConnector
      */
-    function timesheet() {
+    public function timesheet() {
         return new Connector\TimesheetConnector($this);
     }
 
     /**
      * @return Sminnee\WorkflowMax\Connector\StaffConnector
      */
-    function staff() {
+    public function staff() {
         return new Connector\StaffConnector($this);
     }
 
     /**
      * @return Sminnee\WorkflowMax\Connector\ClientConnector
      */
-    function client() {
+    public function client() {
         return new Connector\ClientConnector($this);
+    }
+
+
+    public function report() {
+        return new Connector\ReportConnector($this);
     }
 
     /**

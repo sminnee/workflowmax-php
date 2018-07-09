@@ -5,7 +5,7 @@ namespace Sminnee\WorkflowMax\Connector;
 use Datetime;
 use iter;
 
-use Sminnee\WorkflowMax\Connector;
+use Sminnee\WorkflowMax\ApiClient;
 use Sminnee\WorkflowMax\ApiCall;
 use Sminnee\WorkflowMax\Model\Timesheet;
 use Sminnee\WorkflowMax\Model\TimesheetList;
@@ -18,7 +18,7 @@ class TimesheetConnector extends TypeConnector
 
     protected $client;
 
-    function __construct(Connector $connector) {
+    function __construct(ApiClient $connector) {
         $this->connector = $connector;
     }
 

@@ -4,7 +4,7 @@ namespace Sminnee\WorkflowMax\Connector;
 
 use Datetime;
 
-use Sminnee\WorkflowMax\Connector;
+use Sminnee\WorkflowMax\ApiClient;
 use Sminnee\WorkflowMax\Model\Client;
 use Sminnee\WorkflowMax\Model\JobList;
 
@@ -16,7 +16,7 @@ class ClientConnector
 
     protected $client;
 
-    function __construct(Connector $connector) {
+    function __construct(ApiClient $connector) {
         $this->connector = $connector;
     }
 

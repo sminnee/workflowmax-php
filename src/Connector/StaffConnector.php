@@ -4,7 +4,7 @@ namespace Sminnee\WorkflowMax\Connector;
 
 use Datetime;
 
-use Sminnee\WorkflowMax\Connector;
+use Sminnee\WorkflowMax\ApiClient;
 use Sminnee\WorkflowMax\Model\Staff;
 
 /**
@@ -15,7 +15,7 @@ class StaffConnector extends TypeConnector
 
     protected $connector;
 
-    function __construct(Connector $connector) {
+    function __construct(ApiClient $connector) {
         $this->connector = $connector;
     }
 

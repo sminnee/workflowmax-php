@@ -2,10 +2,10 @@
 
 require(__DIR__ . "/../vendor/autoload.php");
 
-use Sminnee\WorkflowMax\Connector;
+use Sminnee\WorkflowMax\ApiClient;
 use Sminnee\WorkflowMax\IterMiner\IterMiner;
 
-$client = new Connector([
+$client = new ApiClient([
 	'api_key' => getenv('WFM_API_KEY') ,
 	'account_key' => getenv('WFM_ACCOUNT_KEY'),
 ]);
