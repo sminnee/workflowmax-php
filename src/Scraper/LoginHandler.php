@@ -47,6 +47,8 @@ class LoginHandler
             return [false, $message];
         }
 
+        $crawler = $this->client->request('GET', "https://practicemanager.xero.com/My/Dashboard");
+
         return [true, null];
     }
 
