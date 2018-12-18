@@ -5,9 +5,9 @@ namespace Sminnee\WorkflowMax\Scraper;
 use Goutte\Client;
 
 /**
- * Handles the execution and parsing of a log-in action via the Goutte client
+ * Handles the execution and parsing of a Xero-SSO log-in action via the Goutte client
  */
-class LoginHandler
+class XeroLoginHandler
 {
 
     protected $client;
@@ -27,20 +27,20 @@ class LoginHandler
     public function login(array $credentials)
     {
         // Open login form
-        $crawler = $this->client->request('GET', "https://my.workflowmax.com/login.aspx");
+        $crawler = $this->client->request('GET', "https://practicemanager.xero.com/Access/Logon/RedirectToXeroLogin");
 
         // Map credentials to form fields
         $formData = [
-            'Code' => $credentials['username'],
-            'Password' => $credentials['password'],
+            'userName' => $credentials['username'],
+            'password' => $credentials['password'],
         ];
 
         // Submit the log-in form
-        $form = $crawler->selectButton('Login')->form();
+        $form = $crawler->filter('form')->form();
         $crawler = $this->client->submit($form, $formData);
 
         // Validate the result
-        $error = $crawler->filter('.public-message .message.alert');
+        $error = $crawler->filter('.form-container .warning');
         if ($error->count() > 0) {
             $message = $this->cleanHTML($error->html());
             $message = ''. $message;
@@ -53,12 +53,12 @@ class LoginHandler
             }
         }
 
-        $crawler = $this->client->request('GET', "https://my.workflowmax.com/my/overview.aspx");
+        $crawler = $this->client->request('GET', "https://practicemanager.xero.com/My/Dashboard");
 
         $good = false;
         $headers = $crawler->filter('.LayoutSubHeading.LayoutSubHeadingUnderline');
         foreach ($headers as $header) {
-            if ($header->html() == 'Time Summary') {
+            if ($header->textContent == 'Time Summary') {
                 $good = true;
                 break;
             }

@@ -32,7 +32,12 @@ class ApiClient
     {
         if (!$this->goutte) {
             $this->goutte = new \Goutte\Client();
-            $login = new Scraper\LoginHandler($this->goutte);
+
+            if (!empty($this->params['xero_login'])) {
+                $login = new Scraper\XeroLoginHandler($this->goutte);
+            } else {
+                $login = new Scraper\LoginHandler($this->goutte);
+            }
 
             foreach (['username', 'password'] as $required) {
                 if (empty($this->params[$required])) {
