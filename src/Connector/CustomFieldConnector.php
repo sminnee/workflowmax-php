@@ -25,12 +25,12 @@ class CustomFieldConnector extends TypeConnector
         return $this->getMultiple($apiEndpoint);
     }
 
-    function byId() {
+    function getInstance() {
         return new CustomField($this->connector, $this->connector->apiCall(null, function($result) { return $result; }));
     }
 
     function byStub($stubData) {
-        return $this->byId()->populate($stubData);
+        return $this->getInstance()->populate($stubData);
     }
 
     protected function getMultiple($apiEndpoint)
