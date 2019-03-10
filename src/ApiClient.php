@@ -89,6 +89,14 @@ class ApiClient
         return new Connector\ClientConnector($this);
     }
 
+     /**
+     * @return Sminnee\WorkflowMax\Connector\CustomFieldConnector
+     */
+    public function customField()
+    {
+        return new Connector\CustomFieldConnector($this);
+    }
+
 
     public function report()
     {

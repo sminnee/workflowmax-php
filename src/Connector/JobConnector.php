@@ -6,14 +6,12 @@ use Datetime;
 
 use Sminnee\WorkflowMax\ApiClient;
 use Sminnee\WorkflowMax\Model\Job;
-use Sminnee\WorkflowMax\Model\JobList;
 
 /**
  * A sub-client responsible for accessing job
  */
-class JobConnector
+class JobConnector extends TypeConnector
 {
-
     protected $connector;
 
     function __construct(ApiClient $connector) {
@@ -41,9 +39,14 @@ class JobConnector
      *
      * @param Datetime $start The date at the start of the date range
      * @param Datetime $end The date at the end of the date range
-     * @return Sminnee\WorkflowMax\Model\JobList
      */
     function byDateRange(Datetime $start, Datetime $end) {
-        return new JobList();
+        //
+    }
+
+    function current() {
+        return $this->listFromApiCall($this->connector->apiCall('job.api/current', function($result) {
+            return isset($result['Jobs']['Job']) ? $result['Jobs']['Job'] : [];
+        }));
     }
 }

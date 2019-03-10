@@ -2,9 +2,9 @@
 
 namespace Sminnee\WorkflowMax\Model;
 
-use Sminnee\WorkflowMax\ApiCall;
-use Sminnee\WorkflowMax\Connector;
 use Datetime;
+use Sminnee\WorkflowMax\ApiCall;
+use Sminnee\WorkflowMax\ApiClient;
 
 /**
  * Basis of API models, fetching data, etc
@@ -41,11 +41,11 @@ trait ModelBase
 
     /**
      * Create a new model
-     * @param Client  $client  The WFM client object
+     * @param ApiClient  $connector  The WFM client object
      * @param ApiCall $apiCall The API call to execute to get this object's data
      * @param array   $data    Data that has already been fetched
      */
-    function __construct(Connector $connector, ApiCall $apiCall, array $data = []) {
+    function __construct(ApiClient $connector, ApiCall $apiCall, array $data = []) {
         $this->connector = $connector;
         $this->apiCall = $apiCall;
         if ($data) {

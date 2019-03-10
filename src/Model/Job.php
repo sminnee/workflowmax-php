@@ -2,8 +2,9 @@
 
 namespace Sminnee\WorkflowMax\Model;
 
-use Sminnee\WorkflowMax\ApiCall;
 use Datetime;
+use Sminnee\WorkflowMax\ApiCall;
+use Sminnee\WorkflowMax\Model\Traits\HasCustomFields;
 
 /**
  * Represents a single job
@@ -22,6 +23,12 @@ use Datetime;
 class Job
 {
     use ModelBase;
+    use HasCustomFields;
+
+    public function customFieldConnectorMethodName()
+    {
+        return 'forJob';
+    }
 
     function processData($data) {
 
