@@ -35,7 +35,7 @@
          */
         function byId($id) {
             return new Contact($this->connector, $this->connector->apiCall(
-                "client.api/contact/get/$id",
+                "client.api/contact/$id",
                 function($result) { return $result['Contact']; }
             ));
         }
