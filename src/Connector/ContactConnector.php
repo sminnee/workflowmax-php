@@ -4,7 +4,7 @@
 
     use Datetime;
 
-    use Sminnee\WorkflowMax\ApiContact;
+    use Sminnee\WorkflowMax\ApiClient;
     use Sminnee\WorkflowMax\Model\Contact;
     use Sminnee\WorkflowMax\Model\JobList;
 
@@ -22,9 +22,9 @@
         /**
          * ContactConnector constructor.
          *
-         * @param \Sminnee\WorkflowMax\ApiContact $connector
+         * @param \Sminnee\WorkflowMax\ApiClient $connector
          */
-        function __construct(ApiContact $connector) {
+        function __construct(ApiClient $connector) {
             $this->connector = $connector;
         }
 
