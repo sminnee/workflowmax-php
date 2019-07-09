@@ -53,6 +53,14 @@ trait ModelBase
         }
     }
 
+    /**
+     * Magic Get method
+     * If not set, checks against the API. If still not set returns nul, otherwise returns the value
+     *
+     * @param $param
+     *
+     * @return mixed
+     */
     function __get($param) {
         if(!isset($this->data[$param]) && !$this->apiCalled) {
             $this->apiCalled = true;
@@ -65,7 +73,7 @@ trait ModelBase
         if (isset($this->data[$param]))
             return $this->data[$param];
         else
-            return false;
+            return null;
     }
 
     /**
