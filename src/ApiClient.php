@@ -138,6 +138,14 @@ class ApiClient
     }
 
     /**
+     * @return \Sminnee\WorkflowMax\Connector\InvoiceConnector
+     */
+    public function invoice()
+    {
+        return new Connector\InvoiceConnector($this);
+    }
+
+    /**
      * Make an API call
      * @param string $url The relative URL (e.g. 'jobs.api/list')
      * @return Sminnee\WorkflowMax\ApiCall The API call
