@@ -23,10 +23,7 @@ trait HasCustomFields
         $customFields = $this->connector->customField()->{$this->customFieldConnectorMethodName()}($this);
 
         foreach ($customFields as $customField) {
-            if ($customField->Type != "") {
-                $this->customFields[$customField->Name] = $customField->{$customField->Type};
-            }
-
+            $this->customFields[$customField->Name] = $customField->Value;
         }
 
         $this->hasResolvedCustomFields = true;
