@@ -31,7 +31,7 @@ class InvoiceConnector extends TypeConnector
      * @return Sminnee\WorkflowMax\Model\Invoice
      */
     function byId($invoice) {
-        return new Quote($this->connector, $this->connector->apiCall(
+        return new Invoice($this->connector, $this->connector->apiCall(
             "invoice.api/get/$invoice",
             function($result) {
                 return $result['Invoice'];
