@@ -62,7 +62,10 @@ trait ModelBase
             );
         }
 
-        return $this->data[$param];
+        if (isset($this->data[$param]))
+            return $this->data[$param];
+        else
+            return false;
     }
 
     /**
