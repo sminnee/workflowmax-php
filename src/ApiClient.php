@@ -10,10 +10,24 @@ use GuzzleHttp\Client as Guzzle;
 class ApiClient
 {
 
+    /**
+     * @var
+     */
     private $params;
+    /**
+     * @var \GuzzleHttp\Client
+     */
     private $fetcher;
+    /**
+     * @var
+     */
     private $goutte;
 
+    /**
+     * ApiClient constructor.
+     *
+     * @param $params
+     */
     public function __construct($params)
     {
         $this->params = $params;
@@ -98,9 +112,37 @@ class ApiClient
     }
 
 
+    /**
+     * @return \Sminnee\WorkflowMax\Connector\ReportConnector
+     */
     public function report()
     {
         return new Connector\ReportConnector($this);
+    }
+
+
+    /**
+     * @return \Sminnee\WorkflowMax\Connector\QuoteConnector
+     */
+    public function quote()
+    {
+        return new Connector\QuoteConnector($this);
+    }
+
+    /**
+     * @return \Sminnee\WorkflowMax\Connector\ContactConnector
+     */
+    public function contact()
+    {
+        return new Connector\ContactConnector($this);
+    }
+
+    /**
+     * @return \Sminnee\WorkflowMax\Connector\InvoiceConnector
+     */
+    public function invoice()
+    {
+        return new Connector\InvoiceConnector($this);
     }
 
     /**

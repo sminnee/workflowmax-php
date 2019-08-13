@@ -4,6 +4,7 @@ namespace Sminnee\WorkflowMax\Connector;
 
 use Sminnee\WorkflowMax\ApiClient;
 use Sminnee\WorkflowMax\Model\Job;
+use Sminnee\WorkflowMax\Model\Client;
 use Sminnee\WorkflowMax\Model\CustomField;
 
 /**
@@ -18,6 +19,13 @@ class CustomFieldConnector extends TypeConnector
         $this->connector = $connector;
     }
 
+    function forClient(Client $client)
+    {
+        $apiEndpoint = 'client.api/get/' . $client->ID  . '/customfield';
+
+        return $this->getMultiple($apiEndpoint);
+    }
+    
     function forJob(Job $job)
     {
         $apiEndpoint = 'job.api/get/' . $job->ID  . '/customfield';
