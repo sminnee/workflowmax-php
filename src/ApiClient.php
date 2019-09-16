@@ -34,7 +34,7 @@ class ApiClient
 
         $this->fetcher = new Guzzle([
             'base_uri' => 'https://api.workflowmax.com/',
-            'timeout'  => 30.0,
+            'timeout'  => (isset($params['timeout'])) ? $params['timeout'] : 30.0,
         ]);
     }
 
