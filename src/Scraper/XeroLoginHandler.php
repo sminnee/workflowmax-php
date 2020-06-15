@@ -27,33 +27,33 @@ class XeroLoginHandler
     public function login(array $credentials)
     {
         // Open login form
-        $crawler = $this->client->request('GET', "https://practicemanager.xero.com/Access/Logon/RedirectToXeroLogin");
+        $crawler = $this->client->request('GET', "https://practicemanager.xero.com/Access/Logon/TransitionToXeroLogin?offsetFromUtc=-720&username=" . urlencode($credentials['username']));
+
+        $refreshHeader = $this->client->getInternalResponse()->getHeader('Refresh');
+        if(preg_match('#^\s*[0-9]+\s*;url=(.+)$#', $refreshHeader, $matches)) {
+            $nextUrl = $matches[1];
+        } else {
+            throw new \LogicException("Bad refresh header '$refreshHeader'. Suspect Xero have changed their web-app.");
+        }
+
+        $crawler = $this->client->request('GET', $nextUrl);
 
         // Map credentials to form fields
         $formData = [
-            'userName' => $credentials['username'],
-            'password' => $credentials['password'],
+            'Username' => $credentials['username'],
+            'Password' => $credentials['password'],
         ];
 
         // Submit the log-in form
         $form = $crawler->filter('form')->form();
         $crawler = $this->client->submit($form, $formData);
 
-        // Validate the result
-        $error = $crawler->filter('.form-container .warning');
-        if ($error->count() > 0) {
-            $message = $this->cleanHTML($error->html());
-            $message = ''. $message;
-            return [false, $message];
-        }
+        // Submit the 2nd step form
+        $form = $crawler->selectButton('Click to continue')->form();
+        $crawler = $this->client->submit($form, []);
 
-        foreach ($crawler->filter('h1.login-header') as $header) {
-            if (preg_match('/redirected to the Xero login/i', $header->html())) {
-                return [false, 'Login appeared not to work - get redirected to Xero login page'];
-            }
-        }
-
-        $crawler = $this->client->request('GET', "https://practicemanager.xero.com/My/Dashboard");
+        // Check that you can see Time Summary on the homepage
+        $crawler = $this->client->request('GET', "https://my.workflowmax.com/my/overview.aspx");
 
         $good = false;
         $headers = $crawler->filter('.LayoutSubHeading.LayoutSubHeadingUnderline');
