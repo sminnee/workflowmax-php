@@ -27,7 +27,16 @@ class LoginHandler
     public function login(array $credentials)
     {
         // Open login form
-        $crawler = $this->client->request('GET', "https://my.workflowmax.com/login.aspx");
+        $crawler = $this->client->request('GET', "https://practicemanager.xero.com/Access/Logon/TransitionToXeroLogin?username=" . urlencode($credentials['username']));
+
+        $refreshHeader = $crawler->getHeader('Refresh');
+
+        // Use refresh-header redirection
+        if (preg_match('/^ *[0-9]+ *;(.*)$/', $refreshHeader, $matches)) {
+            $crawler = $this->client->request('GET', $matches[1]);
+        } else {
+            throw new \LogicException("Bad Refresh header value: $refreshHeader");
+        }
 
         // Map credentials to form fields
         $formData = [
@@ -36,7 +45,7 @@ class LoginHandler
         ];
 
         // Submit the log-in form
-        $form = $crawler->selectButton('Login')->form();
+        $form = $crawler->selectButton('xl-form-submit')->form();
         $crawler = $this->client->submit($form, $formData);
 
         // Validate the result
