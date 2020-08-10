@@ -62,7 +62,7 @@ class LoginHandler
             }
         }
 
-        $crawler = $this->client->request('GET', "https://my.workflowmax.com/my/overview.aspx");
+        $crawler = $this->client->request('GET', "https://app.my.workflowmax.com/my/overview.aspx");
 
         $good = false;
         $headers = $crawler->filter('.LayoutSubHeading.LayoutSubHeadingUnderline');

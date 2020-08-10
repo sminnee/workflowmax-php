@@ -33,13 +33,13 @@ class ReportFetcher
     {
         return $this->client->getClient()->request(
             'POST',
-            "https://my.workflowmax.com/ajaxpro/{$class}.ashx",
+            "https://app.my.workflowmax.com/ajaxpro/{$class}.ashx",
             [
                 'headers' => [
                     'Content-Type' => 'text/plain',
                     'X-AjaxPro-Method' => $method,
                 ],
-                'cookies' => $this->getCookiesFor("https://my.workflowmax.com/"),
+                'cookies' => $this->getCookiesFor("https://app.my.workflowmax.com/"),
                 'body' => json_encode($data),
 
             ]
@@ -59,8 +59,8 @@ class ReportFetcher
             // Find the report designer ID
             $response = $guzzleClient->request(
                 'GET',
-                "https://my.workflowmax.com/reports/view.aspx?id={$reportID}",
-                [ 'cookies' => $this->getCookiesFor("https://my.workflowmax.com/") ]
+                "https://app.my.workflowmax.com/reports/view.aspx?id={$reportID}",
+                [ 'cookies' => $this->getCookiesFor("https://app.my.workflowmax.com/") ]
             );
             $body = '' . $response->getBody();
             if (preg_match('/new WorkflowMax.Control.ReportDesigner\(\s*([0-9]+)\s*\)/', $body, $matches)) {
@@ -133,14 +133,14 @@ class ReportFetcher
             throw new \LogicException("Couldn't export report: " . var_export($response, true) . "\n" . $response->getBody());
         }
 
-        $downloadURL = "https://my.workflowmax.com/reports/" . $csvExport["url"];
+        $downloadURL = "https://app.my.workflowmax.com/reports/" . $csvExport["url"];
 
         $csvFilename = tempnam('/tmp', 'report');
         $guzzleClient->get(
             $downloadURL,
             [
                 'allow_redirects' => true,
-                'cookies' => $this->getCookiesFor("https://my.workflowmax.com/"),
+                'cookies' => $this->getCookiesFor("https://app.my.workflowmax.com/"),
                 'save_to' => $csvFilename,
             ]
         );
