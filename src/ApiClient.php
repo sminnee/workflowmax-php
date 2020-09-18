@@ -4,6 +4,10 @@ namespace Sminnee\WorkflowMax;
 
 use GuzzleHttp\Client as Guzzle;
 
+use Symfony\Component\BrowserKit\HttpBrowser;
+use Symfony\Component\HttpClient\HttpClient;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
+
 /**
  * The WorkflowMax API connector
  */
@@ -14,14 +18,16 @@ class ApiClient
      * @var
      */
     private $params;
-    /**
-     * @var \GuzzleHttp\Client
-     */
-    private $fetcher;
+
     /**
      * @var
      */
     private $goutte;
+
+    /**
+     * @var HttpClientInterface
+     */
+    private $client;
 
     /**
      * ApiClient constructor.
@@ -32,20 +38,24 @@ class ApiClient
     {
         $this->params = $params;
 
-        $this->fetcher = new Guzzle([
-            'base_uri' => 'https://api.workflowmax.com/',
-            'timeout'  => 30.0,
-        ]);
+        $this->client = HttpClient::create();
+    }
+
+    public function httpClient()
+    {
+        return $this->client;
     }
 
     /**
-     * Get a goutte client logged into this WFM account
-     * @return \Goutte\Client
+     * Get a HttpBrowser client logged into this WFM account
+     * @return HttpBrowser
      */
     public function goutte()
     {
         if (!$this->goutte) {
-            $this->goutte = new \Goutte\Client();
+
+            $this->goutte = new HttpBrowser($this->client);
+            $this->goutte->setServerParameters(['HTTP_USER_AGENT' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 Safari/537.36']);
 
             if (!empty($this->params['xero_login'])) {
                 $login = new Scraper\XeroLoginHandler($this->goutte);

@@ -2,8 +2,8 @@
 
 namespace Sminnee\WorkflowMax\Scraper;
 
-use Goutte\Client;
-use GuzzleHttp\Cookie\CookieJar;
+use Symfony\Component\BrowserKit\HttpBrowser;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
  * Fetches the content of a WorkflowMax report
@@ -11,19 +11,28 @@ use GuzzleHttp\Cookie\CookieJar;
 class ReportFetcher
 {
 
+    protected $browser;
     protected $client;
 
-    public function __construct(Client $client)
+    /**
+     * Create a new ReportFetcher
+     */
+    public function __construct(HttpBrowser $browser, HttpClientInterface $client)
     {
+        $this->browser = $browser;
         $this->client = $client;
     }
 
+    /**
+     * Return the cookies from this browser for the given URL
+     */
     public function getCookiesFor($url)
     {
-        return CookieJar::fromArray(
-            $this->client->getCookieJar()->allRawValues($url),
-            parse_url($url, PHP_URL_HOST)
-        );
+        $cookies = [];
+        foreach ($this->browser->getCookieJar()->allRawValues($url) as $name => $value) {
+            $cookies[] = $name.'='.$value;
+        }
+        return implode('; ', $cookies);
     }
 
     /**
@@ -31,17 +40,16 @@ class ReportFetcher
      */
     public function ajaxProCall($class, $method, $data)
     {
-        return $this->client->getClient()->request(
+        return $this->client->request(
             'POST',
             "https://app.my.workflowmax.com/ajaxpro/{$class}.ashx",
             [
                 'headers' => [
                     'Content-Type' => 'text/plain',
                     'X-AjaxPro-Method' => $method,
+                    'Cookie' => $this->getCookiesFor("https://app.my.workflowmax.com/"),
                 ],
-                'cookies' => $this->getCookiesFor("https://app.my.workflowmax.com/"),
                 'body' => json_encode($data),
-
             ]
         );
     }
@@ -53,16 +61,14 @@ class ReportFetcher
      */
     public function getReport($reportID, $criteria = [])
     {
-        $guzzleClient = $this->client->getClient();
-
         if ($criteria) {
             // Find the report designer ID
-            $response = $guzzleClient->request(
+            $response = $this->client->request(
                 'GET',
                 "https://app.my.workflowmax.com/reports/view.aspx?id={$reportID}",
                 [ 'cookies' => $this->getCookiesFor("https://app.my.workflowmax.com/") ]
             );
-            $body = '' . $response->getBody();
+            $body = '' . $response->getContent();
             if (preg_match('/new WorkflowMax.Control.ReportDesigner\(\s*([0-9]+)\s*\)/', $body, $matches)) {
                 $reportDesignerID = $matches[1];
             } else {
@@ -126,24 +132,28 @@ class ReportFetcher
 
 
         // Some garbled content in the JSON body just to mess with us.
-        $jsonBody = preg_replace('/;\/\*.*$/', '', ''.$response->getBody());
+        $jsonBody = preg_replace('/;\/\*.*$/', '', ''.$response->getContent());
         $csvExport = json_decode($jsonBody, true);
 
         if (!isset($csvExport["url"])) {
-            throw new \LogicException("Couldn't export report: " . var_export($response, true) . "\n" . $response->getBody());
+            throw new \LogicException("Couldn't export report: ". $response->getContent());
         }
 
         $downloadURL = "https://app.my.workflowmax.com/reports/" . $csvExport["url"];
 
         $csvFilename = tempnam('/tmp', 'report');
-        $guzzleClient->get(
+        $response = $this->client->request(
+            'GET',
             $downloadURL,
             [
-                'allow_redirects' => true,
-                'cookies' => $this->getCookiesFor("https://app.my.workflowmax.com/"),
-                'save_to' => $csvFilename,
+                'max_redirects' => 5,
+                'headers' => [
+                    'Cookie' => $this->getCookiesFor("https://app.my.workflowmax.com/"),
+                ],
             ]
         );
+
+        file_put_contents($csvFilename, $response->getContent());
 
         return new CsvFileIterator($csvFilename, true);
     }

@@ -2,7 +2,12 @@
 
 namespace Sminnee\WorkflowMax\Scraper;
 
-use Goutte\Client;
+use Symfony\Component\DomCrawler\Crawler;
+use GuzzleHttp\Cookie\CookieJar;
+use Symfony\Component\BrowserKit\Response As BKResponse;
+
+use Symfony\Component\BrowserKit\HttpBrowser;
+
 
 /**
  * Handles the execution and parsing of a Xero-SSO log-in action via the Goutte client
@@ -12,7 +17,7 @@ class XeroLoginHandler
 
     protected $client;
 
-    public function __construct(Client $client)
+    public function __construct(HttpBrowser $client)
     {
         $this->client = $client;
     }
@@ -27,7 +32,7 @@ class XeroLoginHandler
     public function login(array $credentials)
     {
         // Open login form
-        $crawler = $this->client->request('GET', "https://practicemanager.xero.com/Access/Logon/TransitionToXeroLogin?offsetFromUtc=-720&username=" . urlencode($credentials['username']));
+        $this->client->request('GET', "https://practicemanager.xero.com/Access/Logon/TransitionToXeroLogin?offsetFromUtc=-720&username=" . urlencode($credentials['username']));
 
         $refreshHeader = $this->client->getInternalResponse()->getHeader('Refresh');
         if(preg_match('#^\s*[0-9]+\s*;url=(.+)$#', $refreshHeader, $matches)) {
@@ -36,6 +41,7 @@ class XeroLoginHandler
             throw new \LogicException("Bad refresh header '$refreshHeader'. Suspect Xero have changed their web-app.");
         }
 
+        // Fetch the form
         $crawler = $this->client->request('GET', $nextUrl);
 
         // Map credentials to form fields
@@ -46,14 +52,21 @@ class XeroLoginHandler
 
         // Submit the log-in form
         $form = $crawler->filter('form')->form();
+
         $crawler = $this->client->submit($form, $formData);
 
         // Submit the 2nd step form
-        $form = $crawler->selectButton('Click to continue')->form();
-        $crawler = $this->client->submit($form, []);
+        $crawler = $this->client->submitForm('Click to continue');
+
+        // Click another time?
+        if (preg_match('/Click to continue/', $crawler->html())) {
+            $crawler = $this->client->submitForm('Click to continue');
+        }
+
+        // $crawler = $this->client->submit($form, []);
 
         // Check that you can see Time Summary on the homepage
-        $crawler = $this->client->request('GET', "https://my.workflowmax.com/my/overview.aspx");
+        $crawler = $this->client->request('GET', "https://app.my.workflowmax.com/my/overview.aspx");
 
         $good = false;
         $headers = $crawler->filter('.LayoutSubHeading.LayoutSubHeadingUnderline');
