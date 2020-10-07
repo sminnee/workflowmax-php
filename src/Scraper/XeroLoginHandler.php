@@ -31,8 +31,15 @@ class XeroLoginHandler
      */
     public function login(array $credentials)
     {
-        // Open login form
-        $this->client->request('GET', "https://practicemanager.xero.com/Access/Logon/TransitionToXeroLogin?offsetFromUtc=-720&username=" . urlencode($credentials['username']));
+        // Open first login form - just asks for username
+        $crawler = $this->client->request('GET', "https://my.workflowmax.com/Access/Logon/CombinedLogin");
+
+        // Submit the first form
+        $formData = [
+            'Code' => $credentials['username'],
+        ];
+        $form = $crawler->filter('form')->form();
+        $crawler = $this->client->submit($form, $formData);
 
         $refreshHeader = $this->client->getInternalResponse()->getHeader('Refresh');
         if(preg_match('#^\s*[0-9]+\s*;url=(.+)$#', $refreshHeader, $matches)) {
@@ -52,7 +59,6 @@ class XeroLoginHandler
 
         // Submit the log-in form
         $form = $crawler->filter('form')->form();
-
         $crawler = $this->client->submit($form, $formData);
 
         // Submit the 2nd step form
