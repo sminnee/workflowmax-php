@@ -11,6 +11,7 @@ $client = new ApiClient([
 ]);
 
 $reportID = getenv('WFM_REPORT_ID');
+$reportName = getenv('WFM_REPORT_NAME');
 
 if ($reportID) {
     $report = $client->report()->byID($reportID);
@@ -18,4 +19,14 @@ if ($reportID) {
     foreach ($report as $record) {
         var_dump($record);
     }
+
+} elseif ($reportName) {
+    $report = $client->report()->byName($reportName);
+
+    foreach ($report as $record) {
+        var_dump($record);
+    }
+
+} else {
+    var_dump($client->report()->list());
 }

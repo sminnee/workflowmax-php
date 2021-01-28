@@ -4,6 +4,7 @@ namespace Sminnee\WorkflowMax\Scraper;
 
 use Symfony\Component\BrowserKit\HttpBrowser;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Symfony\Component\DomCrawler\Crawler;
 
 /**
  * Fetches the content of a WorkflowMax report
@@ -156,5 +157,37 @@ class ReportFetcher
         file_put_contents($csvFilename, $response->getContent());
 
         return new CsvFileIterator($csvFilename, true);
+    }
+
+    /**
+     * Return an array of available reports
+     * @return array
+     */
+    public function getReportList()
+    {
+        $uri = 'https://my.workflowmax.com/api/reports/builder/my';
+
+        // Find the report designer ID
+        $response = $this->client->request(
+            'GET',
+            $uri,
+            [
+                'headers' => [
+                    'Cookie' => $this->getCookiesFor("https://app.my.workflowmax.com/"),
+                ],
+            ]
+        );
+
+        $content = json_decode($response->getContent(), true);
+        if ($content === null) {
+            throw new \LogicException('Couldn\'t parse report list');
+        }
+
+        $result = [];
+        foreach ($content as $item) {
+            $result[$item['id']] = $item['name'];
+        }
+
+        return $result;
     }
 }
