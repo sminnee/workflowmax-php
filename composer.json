@@ -23,6 +23,8 @@
         "symfony/http-client": "^4",
         "symfony/mime": "^4",
         "symfony/browser-kit": "^4",
-        "symfony/css-selector": "^5.2"
+        "symfony/css-selector": "^5.2",
+        "php": "^8.0",
+        "spomky-labs/otphp": "^10.0"
     }
 }

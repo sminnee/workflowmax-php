@@ -7,6 +7,7 @@ use Sminnee\WorkflowMax\ApiClient;
 $client = new ApiClient([
     'username' => getenv('WFM_USERNAME'),
     'password' => getenv('WFM_PASSWORD'),
+    'totp_secret' => getenv('WFM_TOTP_SECRET'),
     'xero_login' => true,
 ]);
 
