@@ -7,7 +7,7 @@ use GuzzleHttp\Cookie\CookieJar;
 use Symfony\Component\BrowserKit\Response As BKResponse;
 
 use Symfony\Component\BrowserKit\HttpBrowser;
-
+use OTPHP\TOTP;
 
 /**
  * Handles the execution and parsing of a Xero-SSO log-in action via the Goutte client
@@ -83,8 +83,11 @@ class XeroLoginHandler
 
             $requestVerificationToken = $crawler->filter('#RequestVerificationToken')->attr('value');
 
+            $otp = TOTP::create($credentials['totp_secret']);
+            $oneTimePassword = $otp->now();
+
             $response = $this->client->request('POST', 'https://login.xero.com/identity/user/ui/login/two-factor/verify', [
-                'oneTimePassword' =>'<< MANUALLY ENTER 6 DIGIT CODE HERE >>',
+                'oneTimePassword' => $oneTimePassword,
                 'rememberMe' => false,
             ], [], [
                 'http-RequestVerificationToken' => $requestVerificationToken,
