@@ -70,7 +70,9 @@ class ApiClient
             }
 
             list($success, $message) = $login->login([
-                'username' => $this->params['username'], 'password' => $this->params['password']
+                'username' => $this->params['username'], 
+                'password' => $this->params['password'],
+                'totp_secret' => $this->params['totp_secret'],
             ]);
 
             if (!$success) {
